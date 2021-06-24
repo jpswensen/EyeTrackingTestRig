@@ -11,11 +11,11 @@
 
 #include "Functions.h"
 
- 
 
 void setup() {
   // Set up Connection to Xbox controller and BNO IMU
   Serial.begin(115200);
+  Serial1.begin(38400);
   while (!Serial) {
     ;
   }
@@ -33,8 +33,6 @@ void setup() {
     while (1); //halt
   }
   Serial.print(F("\r\nXBOX USB Library Started"));
-
-  
 
   // Initialize Limit Switch input pins
   pinMode(xEnd, INPUT); // x
@@ -100,80 +98,63 @@ void setup() {
   InitialValues(); //averaging the values of the 3 analog pins (values from potmeters)
 }
 
- 
 
 int whichMotor = 0;
-
  
 
 void loop() {
   Usb.Task();
-  
-  switch (state)
-  {
-    case (MenuMode):
-      {
-        runMenuModeState();
-        break;
-      }
-    case (StepperHome):
-      {
-        runStepperHomeState();
-        break;
-      }
-    case (StepperManual):
-      {
-        runStepperManualState();
-        break;
-      }
-    case (ServoManual):
-      {
-        runServoManualState();
-        break;
-      }
-    case (ServoCalibration):
-      {
-        runServoCalibrationState();
-        break;
-      }
-    case (SetCoordinates):
-      {
-        runSetCoordinatesState();
-        break;
-      }
-    case (FindCoordinates):
-      {
-        runFindCoordinatesState();
-        break;
-      }
-    case (Auto):
-      {
-        runAutoState();
-        break;
-      }
-    case (NeckCalibration):
-      {
-        runNeckCalibrationState();
-        break;
-      }
-    case (MoveToCalibrationState):
-      {
-        runMoveToCalibrationState();
-        break;
-      }
-    case (Neck):
-      {
-        runNeckState();
-        break;
-      }
-    case (SpinnyBoi):
-      {
-        runSpinnyBoiState();
-        break;
-      }
+  switch (state) {
+    case (MenuMode): {
+      runMenuModeState();
+      break;
+    }
+    case (StepperHome): {
+      runStepperHomeState();
+      break;
+    }
+    case (StepperManual): {
+      runStepperManualState();
+      break;
+    }
+    case (ServoManual): {
+      runServoManualState();
+      break;
+    }
+    case (ServoCalibration): {
+      runServoCalibrationState();
+      break;
+    }
+    case (SetCoordinates): {
+      runSetCoordinatesState();
+      break;
+    }
+    case (FindCoordinates): {
+      runFindCoordinatesState();
+      break;
+    }
+    case (Auto): {
+      runAutoState();
+      break;
+    }
+    case (NeckCalibration): {
+      runNeckCalibrationState();
+      break;
+    }
+    case (MoveToCalibrationState): {
+      runMoveToCalibrationState();
+      break;
+    }
+    case (Neck): {
+      runNeckState();
+      break;
+    }
+    case (SpinnyBoi): {
+      runSpinnyBoiState();
+      break;
+    }
   }
-  if (state != ServoManual || state != NeckCalibration)
-  {
+  if (state != ServoManual || state != NeckCalibration) {
     delay(1);
   }
 }

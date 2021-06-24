@@ -29,7 +29,7 @@ Adafruit_BNO055 bno = Adafruit_BNO055(55);
 
 // Create State Machine
 enum StateMachineState {
-  MenuMode = 0,               // Press Start on X-BOX Controller
+  MenuMode = 0,               // Press Start on XBOX Controller
   ServoCalibration = 1,       // Press A on XBOX Controller
   Auto = 2,                   // Press R3 on XBOX Controller
   StepperHome = 3,            // Press Y on XBOX Controller
@@ -817,15 +817,49 @@ bool IfButtonPressed()
   return pressed;
 }
 
+/**
+ * Reads in serial input and acts accordingly
+ * e.g. "g50,-21.3" looks at (50,-21.3)
+ */
+void runHMI() {
+  char command = Serial1.read(); //maybe change up how the mode is stored?
+  if (command == 'g') { // gazes at input coordinates
+    screenDotPos(0) = Serial1.parseInt();
+    screenDotPos(2) = Serial1.parseInt();
+    leftDotPos = gLS * screenDotPos;
+    rightDotPos = gRS * screenDotPos;
+    parallax();
+  } 
+  else if (command == 'p') { //outputs current postion
+    Serial1.println(String(screenDotPos(0))+','+String(screenDotPos(2)));
+  } 
+  else if (command == 'm') { //returns current mode (for now should always be menuMode)
+    Serial1.println("mode: "+String(state));
+  }
+  else if (command == 'c') { //gazes at center screen
+    screenDotPos(0) = 0;
+    screenDotPos(2) = 0;
+    leftDotPos = gLS * screenDotPos;
+    rightDotPos = gRS * screenDotPos;
+    parallax();
+  }
+  delay(500);
+}
+
 /*
    Menu Mode state that waits for the XBOX button to be pressed
    Switches state to the state corresponding to that button
 */
 void runMenuModeState()
 {
-  Serial.println("I am here yoh");
-  
-  IfButtonPressed();
+  //Serial1.println("in menuMode");
+  if (IfButtonPressed()) {
+    Serial1.println("new mode: "+String(state));
+  }
+  if (Serial1.available()) {
+    runHMI();
+    while (Serial1.available()) Serial1.read();
+  }
 }
 
 /*
@@ -836,6 +870,7 @@ void runMenuModeState()
 void runServoCalibrationState()
 {
   int i = 0;
+  calMotor = 1;
 
   while (i == 0)
   {
@@ -887,6 +922,7 @@ void runStepperHomeState()
 */
 void runStepperManualState()
 {
+  Serial1.println("Xbox controlled");
   while (IfButtonPressed() == false)
   {
     Usb.Task();       // Requesting data from the XBOX controller.
@@ -954,7 +990,6 @@ void runFindCoordinatesState()
 
 bool PreCalibrationState()
 {
-
   bool goodtogo = false; 
   Usb.Task();
   if (Xbox.getButtonClick(START))
@@ -1001,8 +1036,6 @@ bool PreCalibrationState()
 //  }
 //  return exitstate;
 //}
-
-
 
 /*
  * Function that will be used to calibrate the neck steppers
@@ -1187,7 +1220,6 @@ void runNeckState()
 /*
  * Temp Function for servo yaw controll
  */
-
 void runSpinnyBoiState()
 {
   while (IfButtonPressed() == false)
@@ -1308,6 +1340,5 @@ void runAutoState()
       state = MenuMode;
     }
   }
-
   state = MenuMode;
 }
