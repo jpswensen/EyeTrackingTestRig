@@ -92,60 +92,56 @@ void servoCalibration()
   leftDotPos = gLS * screenDotPos;
   rightDotPos = gRS * screenDotPos;
 
-  if (Xbox.getButtonClick(RIGHT))
-  {
-    calMotor ++;
+  if (Xbox.getButtonClick(RIGHT)) {
+    if (calMotor == leftX) calMotor = rightX;
+    if (calMotor == rightZ) calMotor = leftX;
+    if (calMotor == leftZ) calMotor = rightZ;
   }
-  if (Xbox.getButtonClick(LEFT))
-  {
-    calMotor --;
+  if (Xbox.getButtonClick(LEFT)) {
+    if (calMotor == rightZ) calMotor = leftZ;
+    if (calMotor == leftX) calMotor = rightZ;
+    if (calMotor == rightX) calMotor = leftX;
   }
 
   switch (calMotor)
   {
-      case (1) : {
+    case (rightZ) : {
       if (Xbox.getButtonClick(UP)) {
         centerRightZMicroseconds += 5;
       }
-
       if (Xbox.getButtonClick(DOWN)) {
         centerRightZMicroseconds -= 5;
       }
       break;
     }
-  case (2) : {
+    case (leftZ) : {
       if (Xbox.getButtonClick(UP)) {
         centerLeftZMicroseconds += 5;
       }
-
       if (Xbox.getButtonClick(DOWN)) {
         centerLeftZMicroseconds -= 5;
       }
       break;
     }
-    case (3) : {
-        if (Xbox.getButtonClick(UP)) {
-          centerRightXMicroseconds += 5;
-        }
-
-        if (Xbox.getButtonClick(DOWN)) {
-          centerRightXMicroseconds -= 5;
-        }
-        break;
+    case (rightX) : {
+      if (Xbox.getButtonClick(UP)) {
+        centerRightXMicroseconds += 5;
       }
-    case (4) : {
-        if (Xbox.getButtonClick(UP)) {
-          centerLeftXMicroseconds += 5;
-        }
-
-        if (Xbox.getButtonClick(DOWN)) {
-          centerLeftXMicroseconds -= 5;
-        }
-        break;
+      if (Xbox.getButtonClick(DOWN)) {
+        centerRightXMicroseconds -= 5;
       }
-    default : {
-        break;
+      break;
+    }
+    case (leftX) : {
+      if (Xbox.getButtonClick(UP)) {
+        centerLeftXMicroseconds += 5;
       }
+      if (Xbox.getButtonClick(DOWN)) {
+        centerLeftXMicroseconds -= 5;
+      }
+      break;
+    }
+    default : break;
   }
 }
 

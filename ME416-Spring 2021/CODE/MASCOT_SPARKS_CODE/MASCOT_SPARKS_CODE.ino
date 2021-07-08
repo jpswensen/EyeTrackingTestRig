@@ -11,11 +11,14 @@
 
 #include "Functions.h"
 
+//HardwareSerial *SerialXbox = &Serial;
+//HardwareSerial *SerialTerminal = &Serial1;
 
 void setup() {
-  // Set up Connection to Xbox controller and BNO IMU
-  Serial.begin(115200);
-  Serial1.begin(38400);
+  // Set up Connection to Xbox controller, BNO IMU, and laptop's terminal
+  Serial.begin(115200); //max value
+  Serial1.begin(38400); //arbitraliy different standard value
+  // should test 230400 ^
   while (!Serial) {
     ;
   }
@@ -100,8 +103,28 @@ void setup() {
 
 
 int whichMotor = 0;
- 
 
+void (*runState[12])() = {
+  /* 0*/runMenuModeState,
+  /* 1*/runServoCalibrationState,
+  /* 2*/runAutoState,
+  /* 3*/runStepperHomeState,
+  /* 4*/runStepperManualState,
+  /* 5*/runFindCoordinatesState,
+  /* 6*/runServoManualState,
+  /* 7*/runFindCoordinatesState,
+  /* 8*/runNeckCalibrationState,
+  /* 9*/runMoveToCalibrationState,
+  /*10*/runNeckState,
+  /*11*/runSpinnyBoiState
+};
+
+
+void loop() {
+  Usb.Task();
+  runState[state]();
+}
+/**
 void loop() {
   Usb.Task();
   switch (state) {
@@ -157,4 +180,4 @@ void loop() {
   if (state != ServoManual || state != NeckCalibration) {
     delay(1);
   }
-}
+}*/

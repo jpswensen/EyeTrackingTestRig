@@ -27,6 +27,9 @@ Adafruit_BNO055 bno = Adafruit_BNO055(55);
 #include <SoftwareSerial.h>
 //#include <Nextion.h>
 
+HardwareSerial *SerialXbox = &Serial;
+HardwareSerial *SerialTerminal = &Serial1;
+
 // Create State Machine
 enum StateMachineState {
   MenuMode = 0,               // Press Start on XBOX Controller
@@ -44,6 +47,9 @@ enum StateMachineState {
 };
 StateMachineState state = MenuMode;
 
+// TODO: rename state names to more accurately represent funcinality
+String stateNames[12] = {"MenuMode", "ServoCalibration", "Auto", "StepperHome", "StepperManual", "FindCoordinates",
+    "SetCoordinates", "StepperManual", "NeckCalibration", "MoveToCalibrationState","Neck","SpinnyBoi"};
 
 // Initialize XBOX and USB Objects
 USB Usb;
@@ -155,12 +161,14 @@ long int centerRightZMicroseconds = 1500;
 
 /* 
  * This variable is used in servo calibration to determine which motor is being calibrated 
- * 1 - right Z motor
- * 2 - left Z motor
- * 3 - right X motor
- * 4 - left X motor
  */
-int calMotor = 0;
+enum EyeMotor {
+  rightZ = 1,
+  leftZ = 2,
+  rightX = 3,
+  leftX =4,
+};
+EyeMotor calMotor = rightZ;
 
 // Variables for xStick and zStick
 float xStick = 0;
@@ -817,33 +825,38 @@ bool IfButtonPressed()
   return pressed;
 }
 
+/*
+ * moves the eyes to gaze at (x,0,z) on the screen
+ */
+void moveEyesTo(float x, float z) {
+  screenDotPos(0) = x;
+  screenDotPos(2) = z;
+  leftDotPos = gLS * screenDotPos;
+  rightDotPos = gRS * screenDotPos;
+  parallax();
+}
+
 /**
  * Reads in serial input and acts accordingly
  * e.g. "g50,-21.3" looks at (50,-21.3)
  */
-void runHMI() {
-  char command = Serial1.read(); //maybe change up how the mode is stored?
+void runSerialComm() {
+  char command = SerialTerminal->read();
   if (command == 'g') { // gazes at input coordinates
-    screenDotPos(0) = Serial1.parseInt();
-    screenDotPos(2) = Serial1.parseInt();
-    leftDotPos = gLS * screenDotPos;
-    rightDotPos = gRS * screenDotPos;
-    parallax();
+    int setx = SerialTerminal->parseInt();
+    int setz = SerialTerminal->parseInt();
+    moveEyesTo(setx,setz);
   } 
   else if (command == 'p') { //outputs current postion
-    Serial1.println(String(screenDotPos(0))+','+String(screenDotPos(2)));
+    SerialTerminal->println(String(screenDotPos(0))+','+String(screenDotPos(2)));
   } 
   else if (command == 'm') { //returns current mode (for now should always be menuMode)
-    Serial1.println("mode: "+String(state));
+    SerialTerminal->println("mode: "+stateNames[state]);
   }
   else if (command == 'c') { //gazes at center screen
-    screenDotPos(0) = 0;
-    screenDotPos(2) = 0;
-    leftDotPos = gLS * screenDotPos;
-    rightDotPos = gRS * screenDotPos;
-    parallax();
+    moveEyesTo(0,0);
   }
-  delay(500);
+  //delay(500);
 }
 
 /*
@@ -854,11 +867,11 @@ void runMenuModeState()
 {
   //Serial1.println("in menuMode");
   if (IfButtonPressed()) {
-    Serial1.println("new mode: "+String(state));
+    SerialTerminal->println("new mode: "+String(state));
   }
-  if (Serial1.available()) {
-    runHMI();
-    while (Serial1.available()) Serial1.read();
+  if (SerialTerminal->available()) {
+    runSerialComm();
+    while (SerialTerminal->available()) SerialTerminal->read();
   }
 }
 
@@ -869,19 +882,17 @@ void runMenuModeState()
 */
 void runServoCalibrationState()
 {
-  int i = 0;
-  calMotor = 1;
+  boolean calibrating = true;
+  calMotor = leftZ;
 
-  while (i == 0)
-  {
+  while (calibrating) {
     servoCalibration();
     parallax();
 
     Usb.Task();
-    if (Xbox.getButtonClick(B))
-    {
+    if (Xbox.getButtonClick(B)) {
       WriteCalibrationVariablesToProm();
-      i = 1;
+      calibrating = false;
       state = MenuMode;
     }
   }
@@ -894,8 +905,14 @@ void runServoManualState()
 {
   GetScreenDotPosition();
   parallax();
-
-  IfButtonPressed();
+  SerialTerminal->println("Help, I'm being controlled!");
+  if (IfButtonPressed()) {
+    SerialTerminal->println("new mode: "+String(state));
+  }
+  //if (SerialTerminal->available()) {
+  //  runSerialComm();
+  //  while (SerialTerminal->available()) SerialTerminal->read();
+  //}
 }
 
 /*
@@ -922,7 +939,7 @@ void runStepperHomeState()
 */
 void runStepperManualState()
 {
-  Serial1.println("Xbox controlled");
+  //Serial1.println("Xbox controlled: neck");
   while (IfButtonPressed() == false)
   {
     Usb.Task();       // Requesting data from the XBOX controller.
