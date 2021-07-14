@@ -20,7 +20,7 @@ void GetScreenDotPosition()
         }
         if (Xbox.getAnalogHat(LeftHatY) > lim || Xbox.getAnalogHat(LeftHatY) < -lim) {
 
-          screenDotPos(2) += (zStick / (32767));
+          screenDotPos(2) -= (zStick / (32767));
         }
         if (Xbox.getAnalogHat(RightHatX) > lim || Xbox.getAnalogHat(RightHatX) < -lim) {
 
@@ -92,12 +92,12 @@ void servoCalibration()
   leftDotPos = gLS * screenDotPos;
   rightDotPos = gRS * screenDotPos;
 
-  if (Xbox.getButtonClick(RIGHT)) {
+  if (Xbox.getButtonClick(RIGHT) || eyeCalCommand == 'r') {
     if (calMotor == leftX) calMotor = rightX;
     if (calMotor == rightZ) calMotor = leftX;
     if (calMotor == leftZ) calMotor = rightZ;
   }
-  if (Xbox.getButtonClick(LEFT)) {
+  if (Xbox.getButtonClick(LEFT) || eyeCalCommand == 'l') {
     if (calMotor == rightZ) calMotor = leftZ;
     if (calMotor == leftX) calMotor = rightZ;
     if (calMotor == rightX) calMotor = leftX;
@@ -106,37 +106,37 @@ void servoCalibration()
   switch (calMotor)
   {
     case (rightZ) : {
-      if (Xbox.getButtonClick(UP)) {
-        centerRightZMicroseconds += 5;
-      }
-      if (Xbox.getButtonClick(DOWN)) {
+      if (Xbox.getButtonClick(UP) || eyeCalCommand == 'u') {
         centerRightZMicroseconds -= 5;
+      }
+      if (Xbox.getButtonClick(DOWN) || eyeCalCommand == 'd') {
+        centerRightZMicroseconds += 5;
       }
       break;
     }
     case (leftZ) : {
-      if (Xbox.getButtonClick(UP)) {
+      if (Xbox.getButtonClick(UP) || eyeCalCommand == 'u') {
         centerLeftZMicroseconds += 5;
       }
-      if (Xbox.getButtonClick(DOWN)) {
+      if (Xbox.getButtonClick(DOWN) || eyeCalCommand =='d') {
         centerLeftZMicroseconds -= 5;
       }
       break;
     }
     case (rightX) : {
-      if (Xbox.getButtonClick(UP)) {
+      if (Xbox.getButtonClick(UP) || eyeCalCommand == 'u') {
         centerRightXMicroseconds += 5;
       }
-      if (Xbox.getButtonClick(DOWN)) {
+      if (Xbox.getButtonClick(DOWN) || eyeCalCommand == 'd') {
         centerRightXMicroseconds -= 5;
       }
       break;
     }
     case (leftX) : {
-      if (Xbox.getButtonClick(UP)) {
+      if (Xbox.getButtonClick(UP) || eyeCalCommand == 'u') {
         centerLeftXMicroseconds += 5;
       }
-      if (Xbox.getButtonClick(DOWN)) {
+      if (Xbox.getButtonClick(DOWN) || eyeCalCommand == 'd') {
         centerLeftXMicroseconds -= 5;
       }
       break;

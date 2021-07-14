@@ -51,6 +51,9 @@ StateMachineState state = MenuMode;
 String stateNames[12] = {"MenuMode", "ServoCalibration", "Auto", "StepperHome", "StepperManual", "FindCoordinates",
     "SetCoordinates", "StepperManual", "NeckCalibration", "MoveToCalibrationState","Neck","SpinnyBoi"};
 
+StateMachineState stateList[12] = {MenuMode, ServoCalibration, Auto, StepperHome, StepperManual, FindCoordinates,
+    SetCoordinates, StepperManual, NeckCalibration, MoveToCalibrationState, Neck, SpinnyBoi};
+
 // Initialize XBOX and USB Objects
 USB Usb;
 XBOXONE Xbox(&Usb);
@@ -169,6 +172,8 @@ enum EyeMotor {
   leftX =4,
 };
 EyeMotor calMotor = rightZ;
+
+char eyeCalCommand = ' ';
 
 // Variables for xStick and zStick
 float xStick = 0;
@@ -830,7 +835,7 @@ bool IfButtonPressed()
  */
 void moveEyesTo(float x, float z) {
   screenDotPos(0) = x;
-  screenDotPos(2) = z;
+  screenDotPos(2) = -z;
   leftDotPos = gLS * screenDotPos;
   rightDotPos = gRS * screenDotPos;
   parallax();
@@ -848,13 +853,18 @@ void runSerialComm() {
     moveEyesTo(setx,setz);
   } 
   else if (command == 'p') { //outputs current postion
-    SerialTerminal->println(String(screenDotPos(0))+','+String(screenDotPos(2)));
+    SerialTerminal->println(String(screenDotPos(0))+','+String(-1*screenDotPos(2)));
   } 
   else if (command == 'm') { //returns current mode (for now should always be menuMode)
     SerialTerminal->println("mode: "+stateNames[state]);
   }
   else if (command == 'c') { //gazes at center screen
     moveEyesTo(0,0);
+  }
+  else if (command == 's') { //changes state
+    int newstate = SerialTerminal->parseInt();
+    state = stateList[newstate];
+    SerialTerminal->println("tring to go to state: "+stateNames[newstate]);
   }
   //delay(500);
 }
@@ -889,8 +899,12 @@ void runServoCalibrationState()
     servoCalibration();
     parallax();
 
+    if (SerialTerminal->available()) {
+      eyeCalCommand = SerialTerminal->read();
+    }
+    else eyeCalCommand = ' ';
     Usb.Task();
-    if (Xbox.getButtonClick(B)) {
+    if (Xbox.getButtonClick(B) || eyeCalCommand == 'b') {
       WriteCalibrationVariablesToProm();
       calibrating = false;
       state = MenuMode;

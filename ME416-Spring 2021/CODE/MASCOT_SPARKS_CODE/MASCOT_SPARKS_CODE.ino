@@ -39,8 +39,8 @@ void setup() {
 
   // Initialize Limit Switch input pins
   pinMode(xEnd, INPUT); // x
-  pinMode(yEnd, INPUT); //z
-  pinMode(zEnd, INPUT); //y
+  pinMode(yEnd, INPUT); // z
+  pinMode(zEnd, INPUT); // y
   
   pinMode(8, OUTPUT); 
   digitalWrite(8, LOW); //Servo enable using relay - using that to prevent jitter when arduino starts
