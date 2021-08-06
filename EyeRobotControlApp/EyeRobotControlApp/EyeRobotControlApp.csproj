@@ -56,31 +56,38 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="EyeServoCalibration.xaml.cs">
-      <DependentUpon>EyeServoCalibration.xaml</DependentUpon>
+    <Compile Include="EyeCalibration.xaml.cs">
+      <DependentUpon>EyeCalibration.xaml</DependentUpon>
     </Compile>
-    <Compile Include="EyeServoManual.xaml.cs">
-      <DependentUpon>EyeServoManual.xaml</DependentUpon>
+    <Compile Include="EyeControl.xaml.cs">
+      <DependentUpon>EyeControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="HomeShoulders.xaml.cs">
-      <DependentUpon>HomeShoulders.xaml</DependentUpon>
+    <Compile Include="ShouldersControl.xaml.cs">
+      <DependentUpon>ShouldersControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="NeckStepperNServoCalibration.xaml.cs">
-      <DependentUpon>NeckStepperNServoCalibration.xaml</DependentUpon>
+    <Compile Include="InputCOM.xaml.cs">
+      <DependentUpon>InputCOM.xaml</DependentUpon>
     </Compile>
-    <Compile Include="NeckSteppersManual.xaml.cs">
-      <DependentUpon>NeckSteppersManual.xaml</DependentUpon>
+    <Compile Include="NeckControl.xaml.cs">
+      <DependentUpon>NeckControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="NeckCalibration.xaml.cs">
+      <DependentUpon>NeckCalibration.xaml</DependentUpon>
     </Compile>
     <Compile Include="SerialComm.cs" />
-    <Page Include="EyeServoCalibration.xaml">
+    <Page Include="EyeCalibration.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="EyeServoManual.xaml">
+    <Page Include="EyeControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="HomeShoulders.xaml">
+    <Page Include="ShouldersControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="InputCOM.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -96,11 +103,11 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="NeckStepperNServoCalibration.xaml">
+    <Page Include="NeckControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="NeckSteppersManual.xaml">
+    <Page Include="NeckCalibration.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -133,6 +140,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\colorSplash.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\WSU_Gleason.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

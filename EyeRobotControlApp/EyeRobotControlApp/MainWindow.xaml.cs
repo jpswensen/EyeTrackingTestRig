@@ -29,55 +29,82 @@ namespace EyeRobotControlApp
         public static readonly DependencyProperty DisplModeProperty =
             DependencyProperty.Register("DisplMode", typeof(string), typeof(MainWindow), new PropertyMetadata(string.Empty));
 
-        private SerialComm serialComm;
+        private readonly SerialComm serialComm;
+        private readonly InputCOM inputCOM;
+
+        private readonly EyeControl eyeControl;
+        private readonly NeckControl neckControl;
+        private readonly ShouldersControl shouldersControl;
 
         public MainWindow()
         {
             InitializeComponent();
             //DataContext = this;
-            Background = new ImageBrush(SetImage(Properties.Resources.colorSplash));
-
-            try
+            DisplayPage.Background = new ImageBrush(SetImage(Properties.Resources.WSU_Gleason));
+            
+            bool eject;
+            bool try_again;
+            do
             {
-                //serialComm = new SerialComm("COM4", 9600); // test Arduino
-                serialComm = new SerialComm("COM3", 115200); // robot
+                inputCOM = new InputCOM();
+                inputCOM.ShowDialog();
 
-                if (serialComm.IsOpen())
+                string comName = inputCOM.Get_COM();
+                eject = inputCOM.Get_Eject();
+                try_again = !eject;
+                try
                 {
-                    MessageBox.Show(serialComm.GetPortName() + " is open!");
-                    //DisplMode = serialComm.Get_Mode();
+                    serialComm = new SerialComm(comName, 115200);
+                    //serialComm = new SerialComm(comName, 9600); // test Ardunio
+
+                    serialComm.ChangeState(SerialComm.StateMachine.MenuMode);
+                    
+                    if (serialComm.IsOpen()) //was using serialComm.In_MenuMode() as handshake
+                    {
+                        MessageBox.Show(serialComm.GetPortName() + " is open!");
+                        try_again = false;
+                    }
+                    else
+                    {
+                        //throw new Exception("valid port, but not the robot");
+                        MessageBox.Show("Valid COM port,\nbut cannot connect to robot");
+                        serialComm.Close();
+                    }
+                }
+                catch
+                {
+                    MessageBox.Show("Incorrect COM port");
                 }
             }
-            catch (Exception e)
-            {
-                DisplMode = "no Arduino found";
-                MessageBox.Show("Program failed, not connected to Arduino\n");
-                this.Close();
-            }
-            
+            while (try_again);
+            if (eject) { this.Close(); }
+
+            eyeControl = new EyeControl(serialComm);
+            neckControl = new NeckControl(serialComm);
+            shouldersControl = new ShouldersControl(serialComm);
         }
 
         private void EyeModeButton_Click(object sender, RoutedEventArgs e)
         {
             serialComm.ChangeState(SerialComm.StateMachine.EyeServoManual);
             //DisplMode = serialComm.Get_Mode();
-            DisplayPage.Content = new EyeServoManual(serialComm);
+            DisplayPage.Content = eyeControl;
             ShowClick(eyeModeButton);
         }
 
         private void ShoulderModeButton_Click(object sender, RoutedEventArgs e)
         {
             serialComm.ChangeState(SerialComm.StateMachine.ShoulderSteperManual);
-            HomeShoulders homeShoulders = new HomeShoulders(serialComm);
-            DisplayPage.Content = homeShoulders; 
+            DisplayPage.Content = shouldersControl;
+            shouldersControl.DisplayPosition();
             ShowClick(shoudlerModeButton);
-            //homeShoulders.WaitForSteppers();
         }
 
         private void NeckSteppersManualButton_Click(object sender, RoutedEventArgs e)
         {
             serialComm.ChangeState(SerialComm.StateMachine.NeckStepperManual);
-            DisplayPage.Content = new NeckSteppersManual(serialComm);
+            DisplayPage.Content = neckControl;
+            neckControl.DisplayPosition();
             ShowClick(neckModeButton);
         }
 

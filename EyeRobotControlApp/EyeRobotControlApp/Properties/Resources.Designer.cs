@@ -69,5 +69,15 @@ namespace EyeRobotControlApp.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap WSU_Gleason {
+            get {
+                object obj = ResourceManager.GetObject("WSU_Gleason", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
     }
 }

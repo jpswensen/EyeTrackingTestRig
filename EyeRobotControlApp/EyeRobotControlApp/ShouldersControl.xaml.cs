@@ -18,16 +18,16 @@ namespace EyeRobotControlApp
     /// <summary>
     /// Interaction logic for HomeShoulders.xaml
     /// </summary>
-    public partial class HomeShoulders : Page
+    public partial class ShouldersControl : Page
     {
         private readonly SerialComm serialComm;
 
-        public HomeShoulders(SerialComm comm)
+        public ShouldersControl(SerialComm comm)
         {
             InitializeComponent();
             serialComm = comm;
 
-            displShoulderPos.Text = serialComm.Get_Position();
+            //displShoulderPos.Text = serialComm.Get_Position();
             doneText.Text = "DONE";
 
             ManualCommandsVisibility(Visibility.Visible);
@@ -35,6 +35,11 @@ namespace EyeRobotControlApp
             waitText.Visibility = Visibility.Hidden;
             wait_bar.Visibility = Visibility.Hidden;
             doneText.Visibility = Visibility.Hidden;
+        }
+
+        public void DisplayPosition()
+        {
+            displShoulderPos.Text = serialComm.Get_Position();
         }
 
         private void WaitForSteppers()
@@ -49,13 +54,12 @@ namespace EyeRobotControlApp
             {
                 for (int i = 0; i <= 100; i++)
                 {
-                    System.Threading.Thread.Sleep(240);
+                    System.Threading.Thread.Sleep(200);
                     //System.Threading.Thread.Sleep(10);
-                    
+
                     Dispatcher.Invoke(() =>
                     {
-                        string state = serialComm.Get_Mode();
-                        if (state.Equals("Mode: MenuMode\r")) i = 100;
+                        if (serialComm.In_MenuMode()) i = 100;
                         wait_bar.Value = i;
                         if (i == 100)
                         {
@@ -65,7 +69,6 @@ namespace EyeRobotControlApp
                     });
                 }
             });
-            
         }
 
         private void ManualCommandsVisibility(Visibility visibility)
@@ -75,6 +78,7 @@ namespace EyeRobotControlApp
             moveShoulderButton.Visibility = visibility;
             displShoulderPos.Visibility = visibility;
             metersPSA.Visibility = visibility;
+            FOR_PSA.Visibility = visibility;
         }
 
         private void ShoulderStepperManualButton_Click(object sender, RoutedEventArgs e)
@@ -85,20 +89,20 @@ namespace EyeRobotControlApp
             shoulderStepperManualButton.Visibility = Visibility.Hidden;
             ManualCommandsVisibility(Visibility.Visible);
 
-            serialComm.ChangeState(SerialComm.StateMachine.ShoulderSteperManual);
+            serialComm.ChangeState(SerialComm.StateMachine.ShoulderSteperManual); 
         }
 
         private void MoveShoulderButton_Click(object sender, RoutedEventArgs e)
         {
-            bool tryForward = float.TryParse(disForwardInput.GetLineText(0), out float forward);
+            bool tryBack = float.TryParse(disBackInput.GetLineText(0), out float back);
             bool tryRight = float.TryParse(disRightInput.GetLineText(0), out float right);
             bool tryUp = float.TryParse(disUpInput.GetLineText(0), out float up);
             
-            if (tryForward & tryRight & tryUp)
+            if (tryBack & tryRight & tryUp)
             {
-                if ((forward < 0) & (right < 0) & (up < 0))
+                if ((back < 0) & (right < 0) & (up < 0))
                     MessageBox.Show("Shoulder positions cannot be negative!");
-                else serialComm.Send_ToPosition(right, forward, up);
+                else serialComm.Send_ToPosition(right, back, up);
             }
             else MessageBox.Show("Error in reading positions!");
             

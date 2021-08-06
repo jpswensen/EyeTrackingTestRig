@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:EyeRobotControlApp"
         mc:Ignorable="d"
-        Title="Eye Robot Control Panel" Height="450" Width="800">
+        Title="Eye Robot Control Panel" Height="500" Width="800">
     <!--LemonChifffon-->
     <Grid ShowGridLines="False" Margin="0">
         <Grid.ColumnDefinitions>
@@ -14,8 +14,8 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition MaxHeight="30"/>
-            <RowDefinition />
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="29*"/>
         </Grid.RowDefinitions>
         <Frame x:Name="DisplayPage" NavigationUIVisibility="Hidden" Grid.Row="1" Grid.ColumnSpan="4"/>
         <Button x:Name="eyeModeButton" Content=" Eyes " Click="EyeModeButton_Click" MinWidth="70" Grid.Column="0"/>

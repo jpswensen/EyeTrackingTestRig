@@ -18,7 +18,7 @@ namespace EyeRobotControlApp
     /// <summary>
     /// Interaction logic for EyeServoManual.xaml
     /// </summary>
-    public partial class EyeServoManual : Page
+    public partial class EyeControl : Page
     {
         public string DisplGazePos
         {
@@ -26,11 +26,13 @@ namespace EyeRobotControlApp
             set { SetValue(DisplGazePosProperty, value); }
         }
         public static readonly DependencyProperty DisplGazePosProperty =
-            DependencyProperty.Register("DisplGazePos", typeof(string), typeof(EyeServoManual), new PropertyMetadata(string.Empty));
+            DependencyProperty.Register("DisplGazePos", typeof(string), typeof(EyeControl), new PropertyMetadata(string.Empty));
 
         private readonly SerialComm serialComm;
+        private float lastX;
+        private float lastZ;
 
-        public EyeServoManual(SerialComm comm)
+        public EyeControl(SerialComm comm)
         {
             InitializeComponent();
             DataContext = this;
@@ -39,21 +41,25 @@ namespace EyeRobotControlApp
 
             eyeServoCalButton.Content = " Eye Servo\nCalibration";
             gButton.Content += "\n";
+
+            lastX = (float)0.0;
+            lastZ = (float)0.0;
         }
 
         private void GazeButton_Click(object sender, RoutedEventArgs e)
         {
-            bool tryX = short.TryParse(gazeToTextBoxX.GetLineText(0), out short posX);
-            bool tryZ = short.TryParse(gazeToTextBoxZ.GetLineText(0), out short posZ);
+            bool tryX = float.TryParse(gazeToTextBoxX.GetLineText(0), out float posX);
+            bool tryZ = float.TryParse(gazeToTextBoxZ.GetLineText(0), out float posZ);
             if (tryX & tryZ)
             {
-                string newpos = ((float)posX / 1000).ToString() + "," + ((float)posZ / 1000).ToString();
+                string newpos = ((float)posX).ToString() + "," + ((float)posZ).ToString();
                 serialComm.Send_GazePoint(newpos);
+                lastX = posX; lastZ = posZ;
                 DisplGazePos = serialComm.Get_Position();
             }
             else
             {
-                MessageBox.Show("Cannot regognize X or Z inputs!");
+                MessageBox.Show("Cannot recognize X or Z inputs!");
             }
 
         }
@@ -65,7 +71,7 @@ namespace EyeRobotControlApp
 
         private void CenterButton_Click(object sender, RoutedEventArgs e)
         {
-            serialComm.SendToCenter();
+            serialComm.Send_GazePoint("0,0");
             DisplGazePos = serialComm.Get_Position();
         }
 
@@ -95,11 +101,11 @@ namespace EyeRobotControlApp
 
         private void EyeServoCal_Click(object sender, RoutedEventArgs e)
         {
-            EyeServoCalibration eyeServoCalibration = new EyeServoCalibration(serialComm);
+            EyeCalibration eyeCal = new EyeCalibration(serialComm);
             serialComm.ChangeState(SerialComm.StateMachine.EyeServoCalibration);
-            eyeServoCalibration.ShowDialog();
+            eyeCal.ShowDialog();
         }
     }
 
-    
+
 }

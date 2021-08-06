@@ -18,34 +18,40 @@ namespace EyeRobotControlApp
     /// <summary>
     /// Interaction logic for NeckSteppersManual.xaml
     /// </summary>
-    public partial class NeckSteppersManual : Page
+    public partial class NeckControl : Page
     {
         private SerialComm serialComm;
 
-        public NeckSteppersManual(SerialComm serialComm)
+        public NeckControl(SerialComm serialComm)
         {
             this.serialComm = serialComm;
             InitializeComponent();
-            neckPosition.Text = this.serialComm.Get_Position();
+            //neckPosition.Text = this.serialComm.Get_Position();
         }
 
         private void NeckCalibrationButton_Click(object sender, RoutedEventArgs e)
         {
-            NeckStepperNServoCalibration neckCal = new NeckStepperNServoCalibration(serialComm);
+            NeckCalibration neckCal = new NeckCalibration(serialComm);
             serialComm.ChangeState(SerialComm.StateMachine.NeckStepperCalibration);
             neckCal.ShowDialog();
         }
 
-        private void sendAngles_Click(object sender, RoutedEventArgs e)
+        public void DisplayPosition()
+        {
+            neckPosition.Text = serialComm.Get_Position();
+        }
+
+        private void SendAngles_Click(object sender, RoutedEventArgs e)
         {
             bool tryYaw = float.TryParse(yawInput.GetLineText(0), out float yaw);
-            bool tryPitch = float.TryParse(pitchInput.GetLineText(0), out float pitch);
-            bool tryRoll = float.TryParse(rollInput.GetLineText(0), out float roll);
+            bool tryPhiR = float.TryParse(phiRInput.GetLineText(0), out float amplitude);
+            bool tryPhiS = float.TryParse(phiSInput.GetLineText(0), out float angle);
 
             // TODO: add another check that values are within valid range
-            if (tryYaw & tryPitch & tryRoll)
+            if (tryYaw & tryPhiR & tryPhiS)
             {
-                serialComm.Send_ToPosition(roll, pitch, yaw);
+                serialComm.Send_ToPosition(angle, amplitude, yaw);
+
                 neckPosition.Text = serialComm.Get_Position();
             }
             else MessageBox.Show("Those inputs weren't regocnizable!\nYou need to give one angle per box.");

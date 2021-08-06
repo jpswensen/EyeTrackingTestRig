@@ -20,11 +20,11 @@ namespace EyeRobotControlApp
             //AutoMode =2,
             HomeShoulderSteppers = 3,
             ShoulderSteperManual = 4,
-            FindCoordinates = 5,
-            SetCoordinates = 6,
+            //FindCoordinates = 5,
+            //SetCoordinates = 6,
             EyeServoManual = 7,
             NeckStepperCalibration = 8,
-            MoveNeckToCalibratedPoint = 9,
+            //MoveNeckToCalibratedPoint = 9,
             NeckStepperManual = 10,
             //NeckYawServoCalibration = 11,
             //NeckYawServoManual = 12
@@ -49,9 +49,9 @@ namespace EyeRobotControlApp
 
         public string Get_Mode()
         {
-            System.Threading.Thread.Sleep(100);
+            //System.Threading.Thread.Sleep(100);
             serialPort.WriteLine("m");
-            System.Threading.Thread.Sleep(50);
+            System.Threading.Thread.Sleep(10);
 
             return serialPort.BytesToRead < 1 ? "" : serialPort.ReadLine();
         }
@@ -110,7 +110,7 @@ namespace EyeRobotControlApp
         public void ChangeState(StateMachine newstate)
         {
             serialPort.WriteLine("b");
-            serialPort.WriteLine("s" + ((int)newstate).ToString()); 
+            serialPort.WriteLine("s" + ((int)newstate).ToString());
         }
 
         private class Keyboard
@@ -157,6 +157,7 @@ namespace EyeRobotControlApp
         }
 
         public string GetPortName() { return serialPort.PortName; }
+        public void Close() { serialPort.Close(); }
 
     }
 }
