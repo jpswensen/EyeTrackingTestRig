@@ -1,0 +1,6 @@
+{
+    "configuration": "cpu=atmega2560",
+    "board": "arduino:avr:mega",
+    "sketch": "MASCOT_SPARKS_CODE.ino",
+    "port": "/dev/tty.usbmodem14401"
+}
